@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="HR Dashboard - HR Operations Manager">
+  <title>HR Dashboard - HR Operations Manager</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/frontend/css/global.css">
+  <link rel="stylesheet" href="/frontend/css/dashboard.css">
+</head>
+<body>
+  <div class="layout-wrapper">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        HR Operations
+        <small>HR Panel</small>
+      </div>
+      <ul class="sidebar-nav">
+        <li>
+          <a href="#" class="active">
+            <span class="nav-icon">&#128196;</span> Applications
+          </a>
+        </li>
+        <li>
+          <a href="/frontend/pages/team_management.html">
+            <span class="nav-icon">&#128101;</span> Team Management
+          </a>
+        </li>
+        <li class="sidebar-divider"></li>
+        <li>
+          <a href="#" onclick="logout(); return false;">
+            <span class="nav-icon">&#128682;</span> Logout
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Top Navbar -->
+      <div class="top-navbar">
+        <div class="navbar-left">
+          <button class="hamburger-btn" id="hamburgerBtn">&#9776;</button>
+          <h1 class="page-title">HR Dashboard</h1>
+        </div>
+        <div class="navbar-right">
+          <button class="notification-bell" id="notifBell">
+            &#128276;
+            <span class="notification-badge" id="notifBadge" style="display:none">0</span>
+          </button>
+          <div class="user-info" id="userInfo"></div>
+          <button class="btn-logout" id="logoutBtn">Logout</button>
+        </div>
+      </div>
+
+      <!-- Notification Dropdown -->
+      <div class="notification-dropdown" id="notifDropdown">
+        <div class="notif-header">Notifications</div>
+        <div id="notifList"></div>
+      </div>
+
+      <!-- Page Content -->
+      <div class="page-content">
+        <div id="alertMsg" class="alert-msg"></div>
+
+        <!-- Company Admin Tools -->
+        <div class="row mb-4 mt-3">
+          <div class="col-md-6">
+            <div class="card p-3">
+              <h5>Post New Job Opportunity</h5>
+              <form id="createOppForm">
+                <input type="text" class="form-control mb-2" id="oppId" placeholder="Job ID (e.g. OPP-105)" required>
+                <input type="text" class="form-control mb-2" id="oppTitle" placeholder="Job Title" required>
+                <textarea class="form-control mb-2" id="oppDesc" placeholder="Job Description" required rows="3"></textarea>
+                <select class="form-control mb-2" id="oppDept" required>
+                  <option value="">-- Select Department --</option>
+                </select>
+                <button type="submit" class="btn btn-primary btn-sm">Post Job</button>
+              </form>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card p-3">
+              <h5>&#127970; Manage Departments</h5>
+              <div class="input-group mb-2">
+                <input type="text" class="form-control" id="newDeptName" placeholder="New department name">
+                <button class="btn btn-outline-primary" type="button" onclick="addDept()">+ Add</button>
+              </div>
+              <div id="deptList" style="max-height:140px; overflow-y:auto;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- My Job Postings Section -->
+        <div class="section-header" style="margin-top:10px;">
+          <h2>&#128203; My Job Postings</h2>
+        </div>
+        <div class="table-container" style="margin-bottom:20px;">
+          <table class="table table-striped table-bordered mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>#</th>
+                <th>Job ID</th>
+                <th>Title</th>
+                <th>Department</th>
+                <th>Status</th>
+                <th>Posted On</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="myPostingsBody">
+              <tr><td colspan="7" class="text-center py-3">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section-header">
+          <h2>Assigned Applications</h2>
+        </div>
+
+        <!-- Applications Table -->
+        <div class="table-container">
+          <table class="table table-striped table-bordered mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>#</th>
+                <th>Applicant Name</th>
+                <th>Email</th>
+                <th>Opportunity</th>
+                <th>Status</th>
+                <th>Applied Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="applicationsBody">
+              <tr><td colspan="7" class="text-center py-3">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shortlist Modal -->
+  <div class="modal-overlay" id="shortlistModal">
+    <div class="modal-box">
+      <h3>Shortlist Candidate</h3>
+      <div class="form-group">
+        <label>Assign to Manager:</label>
+        <select id="managerSelect" class="form-control"></select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('shortlistModal')">Cancel</button>
+        <button class="btn-submit" onclick="submitShortlist()">Shortlist</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reject Modal -->
+  <div class="modal-overlay" id="rejectModal">
+    <div class="modal-box">
+      <h3>Reject Candidate</h3>
+      <div class="form-group">
+        <label>Rejection Reason:</label>
+        <textarea id="rejectReason" placeholder="Enter reason for rejection..." class="form-control"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('rejectModal')">Cancel</button>
+        <button class="btn-submit" style="background:#e53e3e" onclick="submitRejection()">Reject</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart.js for stats -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="/frontend/js/sidebar.js"></script>
+  <script src="/frontend/js/hr.js"></script>
+
+  <!-- View Details Modal -->
+  <div class="modal-overlay" id="viewDetailsModal">
+    <div class="modal-box" style="max-width:600px; width:90%;">
+      <h3 style="margin-bottom:1.2rem;">&#128100; Applicant Details</h3>
+      <div id="detailsContent" style="font-size:14px; line-height:2;"></div>
+      <div class="modal-actions" style="margin-top:1.5rem;">
+        <button class="btn-cancel" onclick="closeModal('viewDetailsModal')">Close</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

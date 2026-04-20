@@ -1,0 +1,330 @@
+/* dashboard.css - Shared dashboard styles for stat cards, status badges, tables */
+
+/* ---- Stat Cards Row ---- */
+.stats-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 18px 20px;
+  flex: 1;
+  min-width: 180px;
+}
+
+.stat-card .stat-label {
+  font-size: 12px;
+  color: #718096;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.stat-card .stat-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.stat-card.primary {
+  border-left: 3px solid #2c5282;
+}
+
+.stat-card.success {
+  border-left: 3px solid #38a169;
+}
+
+.stat-card.danger {
+  border-left: 3px solid #e53e3e;
+}
+
+.stat-card.warning {
+  border-left: 3px solid #d69e2e;
+}
+
+.stat-card.info {
+  border-left: 3px solid #3182ce;
+}
+
+/* ---- Status Badge Colors ---- */
+.badge-applied {
+  background-color: #e2e8f0;
+  color: #4a5568;
+}
+
+.badge-hr-review {
+  background-color: #fefcbf;
+  color: #744210;
+}
+
+.badge-shortlisted {
+  background-color: #bee3f8;
+  color: #2a4365;
+}
+
+.badge-rejected {
+  background-color: #fed7d7;
+  color: #742a2a;
+}
+
+.badge-interview-scheduled {
+  background-color: #c6f6d5;
+  color: #22543d;
+}
+
+.badge-interview-done {
+  background-color: #b2f5ea;
+  color: #234e52;
+}
+
+.badge-selected {
+  background-color: #c6f6d5;
+  color: #22543d;
+}
+
+.badge-offer-sent {
+  background-color: #e9d8fd;
+  color: #44337a;
+}
+
+.badge-offer-accepted {
+  background-color: #38a169;
+  color: #fff;
+}
+
+.badge-offer-rejected {
+  background-color: #e53e3e;
+  color: #fff;
+}
+
+.badge-pass {
+  background-color: #c6f6d5;
+  color: #22543d;
+}
+
+.badge-fail {
+  background-color: #fed7d7;
+  color: #742a2a;
+}
+
+.badge-pending {
+  background-color: #fefcbf;
+  color: #744210;
+}
+
+/* ---- Action Buttons in Tables ---- */
+.btn-action {
+  padding: 4px 10px;
+  font-size: 11px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-right: 4px;
+  font-weight: 500;
+}
+
+.btn-shortlist {
+  background-color: #2c5282;
+  color: #fff;
+}
+
+.btn-shortlist:hover {
+  background-color: #1a365d;
+}
+
+.btn-reject {
+  background-color: #e53e3e;
+  color: #fff;
+}
+
+.btn-reject:hover {
+  background-color: #c53030;
+}
+
+.btn-schedule {
+  background-color: #38a169;
+  color: #fff;
+}
+
+.btn-schedule:hover {
+  background-color: #2f855a;
+}
+
+.btn-offer {
+  background-color: #805ad5;
+  color: #fff;
+}
+
+.btn-offer:hover {
+  background-color: #6b46c1;
+}
+
+.btn-accept {
+  background-color: #38a169;
+  color: #fff;
+}
+
+.btn-accept:hover {
+  background-color: #2f855a;
+}
+
+.btn-view {
+  background-color: #3182ce;
+  color: #fff;
+}
+
+.btn-view:hover {
+  background-color: #2b6cb0;
+}
+
+/* ---- Empty State ---- */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #a0aec0;
+  font-size: 14px;
+}
+
+.empty-state .empty-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+/* ---- Modal Form ---- */
+.modal-box {
+  background: #fff;
+  border-radius: 6px;
+  padding: 25px;
+  width: 100%;
+  max-width: 450px;
+  border: 1px solid #d1d5db;
+}
+
+.modal-box h3 {
+  font-size: 16px;
+  margin-bottom: 15px;
+  color: #1a202c;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 10px;
+}
+
+.modal-box .form-group {
+  margin-bottom: 12px;
+}
+
+.modal-box label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #4a5568;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.modal-box input,
+.modal-box select,
+.modal-box textarea {
+  width: 100%;
+  padding: 7px 10px;
+  font-size: 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+}
+
+.modal-box textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.modal-box .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.modal-box .btn-cancel {
+  padding: 6px 16px;
+  background: #e2e8f0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.modal-box .btn-submit {
+  padding: 6px 16px;
+  background: #2c5282;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.modal-box .btn-submit:hover {
+  background: #1a365d;
+}
+
+/* ---- Offer Letter Display ---- */
+.offer-letter-box {
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 15px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+  margin: 10px 0;
+}
+
+/* ---- Filter Bar ---- */
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.filter-bar .filter-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-bar label {
+  font-size: 11px;
+  color: #718096;
+  margin-bottom: 3px;
+}
+
+.filter-bar select,
+.filter-bar input {
+  padding: 6px 10px;
+  font-size: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+}
+
+.filter-bar .btn-filter {
+  padding: 6px 14px;
+  background: #2c5282;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.filter-bar .btn-clear {
+  padding: 6px 14px;
+  background: #e2e8f0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
