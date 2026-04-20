@@ -49,7 +49,7 @@ app.use('/api/applicant', applicantRoutes);
 
 // --- Root redirect to login page ---
 app.get('/', (req, res) => {
-  res.redirect('/frontend/pages/login.html');
+  res.redirect('/frontend/pages/index.html');
 });
 
 // --- Error handling middleware ---
