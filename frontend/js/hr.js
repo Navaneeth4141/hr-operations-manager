@@ -6,12 +6,18 @@ document.addEventListener('DOMContentLoaded', function () {
   if (!user) return;
 
   setupNavbar();
-  loadHRApplications();
-  loadManagers();
-  loadDepts();
-  loadMyPostings();
-  initHRManagement();
-  loadPasswordRequests();
+
+  if (document.getElementById('applicationsBody')) {
+    loadHRApplications();
+    loadManagers();
+    loadDepts();
+    loadMyPostings();
+    initHRManagement();
+  }
+
+  if (document.getElementById('passwordRequestsBody')) {
+    loadPasswordRequests();
+  }
 });
 
 let managersCache = [];

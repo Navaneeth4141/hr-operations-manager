@@ -1,15 +1,21 @@
 // frontend/js/admin.js
 // Admin dashboard logic - stats, charts, reports, export
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   const user = checkAuth('Admin');
   if (!user) return;
 
   setupNavbar();
-  loadStats();
-  loadReports();
-  initCompanyManagement();
-  loadPasswordRequests();
+
+  if (document.getElementById('statsCompanyToggle')) {
+    loadStats();
+    loadReports();
+    initCompanyManagement();
+  }
+
+  if (document.getElementById('passwordRequestsBody')) {
+    loadPasswordRequests();
+  }
 });
 
 /**
@@ -292,7 +298,7 @@ async function exportToExcel() {
 
     // Download the file
     XLSX.writeFile(wb, 'HR_Report_' + new Date().toISOString().split('T')[0] + '.xlsx');
-    
+
     showAlert('Report exported successfully!', 'success');
   } catch (err) {
     showAlert('Failed to export. Check console.', 'error');
@@ -306,66 +312,72 @@ async function exportToExcel() {
 function initCompanyManagement() {
   loadCompanies();
 
-  document.getElementById('createCompanyForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const name = document.getElementById('compName').value;
-    const description = document.getElementById('compDesc').value;
+  const createCompanyForm = document.getElementById('createCompanyForm');
+  if (createCompanyForm) {
+    createCompanyForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('compName').value;
+      const description = document.getElementById('compDesc').value;
 
-    const res = await apiRequest('/admin/companies', {
-      method: 'POST',
-      body: JSON.stringify({ name, description })
+      const res = await apiRequest('/admin/companies', {
+        method: 'POST',
+        body: JSON.stringify({ name, description })
+      });
+
+      if (res.ok) {
+        showAlert('Company created successfully!', 'success');
+        e.target.reset();
+        loadCompanies();
+      } else {
+        showAlert('Failed to create company', 'error');
+      }
     });
+  }
 
-    if (res.ok) {
-      showAlert('Company created successfully!', 'success');
-      e.target.reset();
-      loadCompanies();
-    } else {
-      showAlert('Failed to create company', 'error');
+  const createHrForm = document.getElementById('createHrForm');
+  if (createHrForm) {
+    createHrForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const companyId = document.getElementById('hrCompanyId').value;
+      const username = document.getElementById('hrUsername').value;
+      const email = document.getElementById('hrEmail').value;
+      const password = document.getElementById('hrPassword').value;
+
+      const res = await apiRequest(`/admin/companies/${companyId}/hr`, {
+        method: 'POST',
+        body: JSON.stringify({ username, email, password })
+      });
+
+      if (res.ok) {
+        showAlert('Root HR created successfully!', 'success');
+        e.target.reset();
+      } else {
+        const resp = await res.json();
+        showAlert(resp.error || 'Failed to create HR', 'error');
+      }
+    });
+  }
+
+  async function loadCompanies() {
+    try {
+      const res = await apiRequest('/admin/companies');
+      if (!res.ok) return;
+      const companies = await res.json();
+
+      // Populate dropdowns for Creating HR
+      const select = document.getElementById('hrCompanyId');
+      if (select) select.innerHTML = '<option value="">-- Select Company --</option>';
+
+      // Populate dropdowns for Stats filtering
+      const statsToggle = document.getElementById('statsCompanyToggle');
+      if (statsToggle) statsToggle.innerHTML = '<option value="">Overall Platform Stats</option>';
+
+      companies.forEach(c => {
+        if (select) select.innerHTML += `<option value="${c._id}">${c.name}</option>`;
+        if (statsToggle) statsToggle.innerHTML += `<option value="${c._id}">${c.name}</option>`;
+      });
+    } catch (err) {
+      console.error(err);
     }
-  });
-
-  document.getElementById('createHrForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const companyId = document.getElementById('hrCompanyId').value;
-    const username = document.getElementById('hrUsername').value;
-    const email = document.getElementById('hrEmail').value;
-    const password = document.getElementById('hrPassword').value;
-
-    const res = await apiRequest(`/admin/companies/${companyId}/hr`, {
-      method: 'POST',
-      body: JSON.stringify({ username, email, password })
-    });
-
-    if (res.ok) {
-      showAlert('Root HR created successfully!', 'success');
-      e.target.reset();
-    } else {
-      const resp = await res.json();
-      showAlert(resp.error || 'Failed to create HR', 'error');
-    }
-  });
-}
-
-async function loadCompanies() {
-  try {
-    const res = await apiRequest('/admin/companies');
-    if (!res.ok) return;
-    const companies = await res.json();
-    
-    // Populate dropdowns for Creating HR
-    const select = document.getElementById('hrCompanyId');
-    if (select) select.innerHTML = '<option value="">-- Select Company --</option>';
-
-    // Populate dropdowns for Stats filtering
-    const statsToggle = document.getElementById('statsCompanyToggle');
-    if (statsToggle) statsToggle.innerHTML = '<option value="">Overall Platform Stats</option>';
-
-    companies.forEach(c => {
-      if (select) select.innerHTML += `<option value="${c._id}">${c.name}</option>`;
-      if (statsToggle) statsToggle.innerHTML += `<option value="${c._id}">${c.name}</option>`;
-    });
-  } catch (err) {
-    console.error(err);
   }
 }
