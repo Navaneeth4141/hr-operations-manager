@@ -37,6 +37,23 @@ async function markAsRead(req, res) {
 }
 
 /**
+ * PUT /api/notifications/read-all
+ * Mark all notifications as read for the user
+ */
+async function markAllAsRead(req, res) {
+  try {
+    await Notification.updateMany(
+      { userId: req.user.userId, read: false },
+      { $set: { read: true } }
+    );
+    res.json({ message: 'All notifications marked as read.' });
+  } catch (err) {
+    console.error('[Notifications] UpdateAll error:', err);
+    res.status(500).json({ error: 'Failed to update notifications.' });
+  }
+}
+
+/**
  * GET /api/notifications/unread-count
  * Get count of unread notifications
  */
@@ -52,4 +69,4 @@ async function getUnreadCount(req, res) {
   }
 }
 
-module.exports = { getNotifications, markAsRead, getUnreadCount };
+module.exports = { getNotifications, markAsRead, markAllAsRead, getUnreadCount };

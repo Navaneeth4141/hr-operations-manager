@@ -174,6 +174,14 @@ async function loadNotifications() {
         dropdown.classList.toggle('show');
 
         if (dropdown.classList.contains('show')) {
+          // Mark all as read immediately
+          apiRequest('/notifications/read-all', { method: 'PUT' });
+          const badge = document.getElementById('notifBadge');
+          if (badge) {
+            badge.style.display = 'none';
+            badge.textContent = '0';
+          }
+
           // Load full notifications list
           const res = await apiRequest('/notifications');
           if (res && res.ok) {
@@ -184,7 +192,7 @@ async function loadNotifications() {
                 listEl.innerHTML = '<div class="notif-item">No notifications</div>';
               } else {
                 listEl.innerHTML = notifications.slice(0, 10).map(n => `
-                  <div class="notif-item ${n.read ? '' : 'unread'}" 
+                  <div class="notif-item" 
                        onclick="markNotifRead('${n._id}', this)">
                     <div>${n.message}</div>
                     <div class="notif-time">${new Date(n.createdAt).toLocaleString()}</div>
