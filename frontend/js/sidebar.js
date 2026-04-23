@@ -32,17 +32,15 @@ function getUser() {
  * Check if user is authenticated, redirect to login if not
  */
 function checkAuth(requiredRole) {
-  const token = getToken();
   const user = getUser();
-
-  if (!token || !user) {
-    window.location.href = '/';
+  if (!user) {
+    window.location.href = '/login';
     return null;
   }
 
   if (requiredRole && user.role !== requiredRole) {
     alert('Access denied. You do not have permission to view this page.');
-    window.location.href = '/';
+    window.location.href = '/login';
     return null;
   }
 

@@ -178,11 +178,11 @@ function toggleForms() {
  */
 function redirectByRole(role) {
   const routes = {
-    'Admin':       '/dashboard/admin',
-    'CompanyHR':   '/dashboard/hr',
-    'Manager':     '/dashboard/manager',
-    'Interviewer': '/dashboard/interviewer',
-    'Applicant':   '/dashboard/applicant'
+    'Admin':        '/admin-dashboard',
+    'CompanyHR':    '/hr-dashboard',
+    'Manager':      '/manager-dashboard',
+    'Interviewer':  '/interviewer-dashboard',
+    'Applicant':    '/applicant-dashboard'
   };
 
   const url = routes[role] || '/';
