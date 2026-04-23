@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   if (!token || !user || user.role !== 'Applicant') {
     const oppId = new URLSearchParams(window.location.search).get('job');
-    window.location.href = `/frontend/pages/login.html?redirect=apply` + (oppId ? `&job=${oppId}` : '');
+    window.location.href = `/login?redirect=apply` + (oppId ? `&job=${oppId}` : '');
     return;
   }
   

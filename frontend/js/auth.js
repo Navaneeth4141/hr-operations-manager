@@ -81,7 +81,7 @@ function setupLoginForm() {
       const job = urlParams.get('job');
       
       if (redirect === 'apply' && job && userRole === 'Applicant') {
-        window.location.href = `/frontend/pages/apply.html?job=${job}`;
+        window.location.href = `/apply?job=${job}`;
       } else {
         redirectByRole(userRole);
       }
@@ -178,14 +178,14 @@ function toggleForms() {
  */
 function redirectByRole(role) {
   const routes = {
-    'Admin': '/frontend/pages/admin_dashboard.html',
-    'CompanyHR': '/frontend/pages/hr_dashboard.html',
-    'Manager': '/frontend/pages/manager_dashboard.html',
-    'Interviewer': '/frontend/pages/interviewer_dashboard.html',
-    'Applicant': '/frontend/pages/applicant_dashboard.html'
+    'Admin':       '/dashboard/admin',
+    'CompanyHR':   '/dashboard/hr',
+    'Manager':     '/dashboard/manager',
+    'Interviewer': '/dashboard/interviewer',
+    'Applicant':   '/dashboard/applicant'
   };
 
-  const url = routes[role] || '/frontend/pages/index.html';
+  const url = routes[role] || '/';
   window.location.href = url;
 }
 

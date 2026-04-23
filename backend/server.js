@@ -47,10 +47,38 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/applicant', applicantRoutes);
 
-// --- Root redirect to login page ---
-app.get('/', (req, res) => {
-  res.redirect('/frontend/pages/index.html');
-});
+// ─────────────────────────────────────────────────────────────────────────────
+// Clean URL Routing  (hides /frontend/pages/*.html from the browser)
+// ─────────────────────────────────────────────────────────────────────────────
+const PAGES = path.join(__dirname, '..', 'frontend', 'pages');
+
+function page(file) {
+  return (req, res) => res.sendFile(path.join(PAGES, file));
+}
+
+// Public pages
+app.get('/',            page('index.html'));       // home
+app.get('/home',        page('index.html'));
+
+// Login portals  (?role= query kept in URL — only that query param is visible)
+app.get('/login',       page('login.html'));       // applicant  → /login
+app.get('/login/admin', page('login.html'));       // admin      → /login/admin
+app.get('/login/company', page('login.html'));     // company    → /login/company
+
+// Dashboards
+app.get('/dashboard/admin',       page('admin_dashboard.html'));
+app.get('/dashboard/hr',          page('hr_dashboard.html'));
+app.get('/dashboard/applicant',   page('applicant_dashboard.html'));
+app.get('/dashboard/manager',     page('manager_dashboard.html'));
+app.get('/dashboard/interviewer', page('interviewer_dashboard.html'));
+
+// Applicant sub-pages
+app.get('/profile',  page('applicant_profile.html'));
+app.get('/apply',    page('apply.html'));
+
+// HR sub-pages
+app.get('/team',     page('team_management.html'));
+
 
 // --- Error handling middleware ---
 app.use((err, req, res, next) => {

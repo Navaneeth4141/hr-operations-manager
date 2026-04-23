@@ -160,7 +160,7 @@ async function loadJobs() {
       
       const actionBtn = hasApplied
         ? `<span style="background:#d1fae5; color:#065f46; padding:0.4rem 1rem; border-radius:6px; font-weight:600; font-size:0.85rem;">✓ Applied</span>`
-        : `<a href="/frontend/pages/apply.html?job=${job.opportunityId}" class="apply-btn">Apply Now</a>`;
+        : `<a href="/apply?job=${job.opportunityId}" class="apply-btn">Apply Now</a>`;
       
       return `
         <div class="job-card">

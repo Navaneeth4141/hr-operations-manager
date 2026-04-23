@@ -36,13 +36,13 @@ function checkAuth(requiredRole) {
   const user = getUser();
 
   if (!token || !user) {
-    window.location.href = '/frontend/pages/login.html';
+    window.location.href = '/';
     return null;
   }
 
   if (requiredRole && user.role !== requiredRole) {
     alert('Access denied. You do not have permission to view this page.');
-    window.location.href = '/frontend/pages/login.html';
+    window.location.href = '/';
     return null;
   }
 
@@ -55,7 +55,7 @@ function checkAuth(requiredRole) {
 function logout() {
   localStorage.removeItem('hr_token');
   localStorage.removeItem('hr_user');
-  window.location.href = '/frontend/pages/index.html';
+  window.location.href = '/';
 }
 
 /**
