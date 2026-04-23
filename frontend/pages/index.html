@@ -272,11 +272,11 @@
 
   <!-- Navigation -->
   <nav class="navbar">
-    <a href="index.html" class="navbar-logo">TalentSphere</a>
+    <a href="/" class="navbar-logo">TalentSphere</a>
     <div class="navbar-links">
-      <a href="login.html">Applicant Login</a>
-      <a href="login.html?role=company" class="company-link">Company Login</a>
-      <a href="login.html?role=admin" class="admin-link">Admin Login</a>
+      <a href="/login">Applicant Login</a>
+      <a href="/login?role=company" class="company-link">Company Login</a>
+      <a href="/login?role=admin" class="admin-link">Admin Login</a>
     </div>
   </nav>
 
@@ -372,13 +372,13 @@
         const user = JSON.parse(userStr);
         if (user.role === 'Applicant') {
           // Send straight to apply page
-          window.location.href = `apply.html?job=${oppId}`;
+          window.location.href = `/apply?job=${oppId}`;
           return;
         }
       }
       
       // If not logged in or wrong role, send to login with redirect flag
-      window.location.href = `login.html?redirect=apply&job=${oppId}`;
+      window.location.href = `/login?redirect=apply&job=${oppId}`;
     }
   </script>
 </body>
