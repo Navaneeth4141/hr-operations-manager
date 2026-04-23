@@ -365,8 +365,8 @@
       sessionStorage.setItem('pendingApplicationOppId', oppId);
       sessionStorage.setItem('pendingApplicationDbId', dbId);
       
-      const token = localStorage.getItem('token');
-      const userStr = localStorage.getItem('user');
+      const token = localStorage.getItem('hr_token_applicant');
+      const userStr = localStorage.getItem('hr_user_applicant');
       
       if (token && userStr) {
         const user = JSON.parse(userStr);

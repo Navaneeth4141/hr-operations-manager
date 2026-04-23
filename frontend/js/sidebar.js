@@ -14,18 +14,29 @@ function toggleSidebar() {
 }
 
 /**
+ * Helper to determine which portal the user is currently in based on URL
+ */
+function getCurrentPortal() {
+  const path = window.location.pathname || '';
+  if (path.includes('admin')) return 'admin';
+  if (path.includes('hr-') || path.includes('manager-') || path.includes('interviewer-') || path.includes('team-')) return 'company';
+  return 'applicant';
+}
+
+/**
  * Get stored authentication token
  */
 function getToken() {
-  return localStorage.getItem('hr_token');
+  return localStorage.getItem('hr_token_' + getCurrentPortal());
 }
 
 /**
  * Get stored user info
  */
 function getUser() {
-  const data = localStorage.getItem('hr_user');
-  return data ? JSON.parse(data) : null;
+  const data = localStorage.getItem('hr_user_' + getCurrentPortal());
+  if (data) return JSON.parse(data);
+  return null;
 }
 
 /**
@@ -51,8 +62,9 @@ function checkAuth(requiredRole) {
  * Logout - clear storage and redirect
  */
 function logout() {
-  localStorage.removeItem('hr_token');
-  localStorage.removeItem('hr_user');
+  const portal = getCurrentPortal();
+  localStorage.removeItem('hr_token_' + portal);
+  localStorage.removeItem('hr_user_' + portal);
   window.location.href = '/';
 }
 

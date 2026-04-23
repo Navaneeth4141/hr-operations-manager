@@ -4,8 +4,8 @@
 const API_BASE = '/api';
 
 document.addEventListener('DOMContentLoaded', function() {
-  const token = localStorage.getItem('hr_token');
-  const user = localStorage.getItem('hr_user') ? JSON.parse(localStorage.getItem('hr_user')) : null;
+  const token = localStorage.getItem('hr_token_applicant');
+  const user = localStorage.getItem('hr_user_applicant') ? JSON.parse(localStorage.getItem('hr_user_applicant')) : null;
   
   if (!token || !user || user.role !== 'Applicant') {
     const oppId = new URLSearchParams(window.location.search).get('job');
@@ -94,7 +94,7 @@ function setupApplyForm() {
       const res = await fetch(API_BASE + '/applications/apply', {
         method: 'POST',
         headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('hr_token')
+          'Authorization': 'Bearer ' + localStorage.getItem('hr_token_applicant')
         },
         body: formData
       });

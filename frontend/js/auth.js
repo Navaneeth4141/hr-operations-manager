@@ -4,9 +4,13 @@
 const API_BASE = '/api';
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Check if already logged in
-  const token = localStorage.getItem('hr_token');
-  const user = localStorage.getItem('hr_user');
+  const urlParams = new URLSearchParams(window.location.search);
+  const portalRole = urlParams.get('role'); // 'admin', 'company', or null
+  const portalKey = portalRole || 'applicant';
+
+  // Check if already logged in for this specific portal
+  const token = localStorage.getItem('hr_token_' + portalKey);
+  const user = localStorage.getItem('hr_user_' + portalKey);
   if (token && user) {
     redirectByRole(JSON.parse(user).role);
     return;
@@ -73,9 +77,10 @@ function setupLoginForm() {
         return;
       }
 
-      // Store token and user info
-      localStorage.setItem('hr_token', data.token);
-      localStorage.setItem('hr_user', JSON.stringify(data.user));
+      // Store token and user info per portal
+      const portalKeyToSave = portalRole || 'applicant';
+      localStorage.setItem('hr_token_' + portalKeyToSave, data.token);
+      localStorage.setItem('hr_user_' + portalKeyToSave, JSON.stringify(data.user));
 
       const redirect = urlParams.get('redirect');
       const job = urlParams.get('job');
