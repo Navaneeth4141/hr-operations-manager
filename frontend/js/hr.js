@@ -416,10 +416,14 @@ async function togglePosting(id) {
 
 async function deletePosting(id) {
   if (!confirm('Permanently delete this job posting? This cannot be undone.')) return;
-  const res = await apiRequest(`/hr/opportunities/${id}`, { method: 'DELETE' });
-  if (res && res.ok) {
-    showAlert('Job posting deleted.', 'success');
-    loadMyPostings();
+  try {
+    const res = await apiRequest(`/hr/opportunities/${id}`, { method: 'DELETE' });
+    if (res && res.ok) {
+      showAlert('Job posting deleted.', 'success');
+      loadMyPostings();
+    } else {
+      showAlert('Failed to delete posting.', 'error');
+    }
   } catch (err) {
     showAlert('Server error deleting posting', false);
   }
