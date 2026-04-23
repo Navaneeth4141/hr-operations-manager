@@ -60,6 +60,7 @@ const cleanRoutes = {
   '/':                         'index.html',
   '/home':                     'index.html',
   '/login':                    'login.html',
+  '/forgot-password':          'forgot_password.html',
   '/admin-dashboard':          'admin_dashboard.html',
   '/hr-dashboard':             'hr_dashboard.html',
   '/applicant-dashboard':      'applicant_dashboard.html',

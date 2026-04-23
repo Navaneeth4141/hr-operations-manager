@@ -5,6 +5,7 @@ const Application = require('../models/Application');
 const Opportunity = require('../models/Opportunity');
 const User = require('../models/User');
 const Company = require('../models/Company');
+const PasswordResetRequest = require('../models/PasswordResetRequest');
 
 /**
  * GET /api/admin/stats
@@ -210,4 +211,86 @@ async function deleteUser(req, res) {
   }
 }
 
-module.exports = { getStats, getReports, exportData, getCompanies, createCompany, createCompanyHR, deleteUser };
+/**
+ * GET /api/admin/password-requests
+ * Get all pending password requests from Company HRs
+ */
+async function getCompanyPasswordRequests(req, res) {
+  try {
+    const requests = await PasswordResetRequest.find({ status: 'Pending' })
+      .populate('user', 'username email role')
+      .populate('company', 'name');
+    
+    // Filter to only return CompanyHR requests
+    const hrRequests = requests.filter(r => r.user && r.user.role === 'CompanyHR');
+    res.json(hrRequests);
+  } catch (err) {
+    console.error('[Admin] Error fetching password requests:', err);
+    res.status(500).json({ error: 'Server error fetching password requests' });
+  }
+}
+
+/**
+ * PUT /api/admin/password-requests/:id/approve
+ */
+async function approveCompanyPasswordRequest(req, res) {
+  try {
+    const request = await PasswordResetRequest.findById(req.params.id).populate('user');
+    if (!request || request.status !== 'Pending') {
+      return res.status(404).json({ error: 'Pending request not found.' });
+    }
+
+    if (!request.user || request.user.role !== 'CompanyHR') {
+      return res.status(400).json({ error: 'Invalid user for this request type.' });
+    }
+
+    // Update user's password using the pre-hashed password
+    // To bypass the pre-save hook which hashes again, we use updateOne
+    await User.updateOne(
+      { _id: request.user._id },
+      { $set: { password: request.newPasswordHash } }
+    );
+
+    // Update request status
+    request.status = 'Approved';
+    await request.save();
+
+    res.json({ message: 'Password reset request approved.' });
+  } catch (err) {
+    console.error('[Admin] Error approving password request:', err);
+    res.status(500).json({ error: 'Server error processing request.' });
+  }
+}
+
+/**
+ * PUT /api/admin/password-requests/:id/reject
+ */
+async function rejectCompanyPasswordRequest(req, res) {
+  try {
+    const request = await PasswordResetRequest.findById(req.params.id);
+    if (!request || request.status !== 'Pending') {
+      return res.status(404).json({ error: 'Pending request not found.' });
+    }
+
+    request.status = 'Rejected';
+    await request.save();
+
+    res.json({ message: 'Password reset request rejected.' });
+  } catch (err) {
+    console.error('[Admin] Error rejecting password request:', err);
+    res.status(500).json({ error: 'Server error processing request.' });
+  }
+}
+
+module.exports = { 
+  getStats, 
+  getReports, 
+  exportData, 
+  getCompanies, 
+  createCompany, 
+  createCompanyHR, 
+  deleteUser,
+  getCompanyPasswordRequests,
+  approveCompanyPasswordRequest,
+  rejectCompanyPasswordRequest
+};

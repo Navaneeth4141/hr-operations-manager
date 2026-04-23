@@ -115,7 +115,10 @@
             <input type="text" class="form-control" id="loginUsername" placeholder="Enter username" required>
           </div>
           <div class="mb-3">
-            <label for="loginPassword" class="form-label">Password</label>
+            <label for="loginPassword" class="form-label" style="display:flex; justify-content:space-between;">
+              Password 
+              <a href="/forgot-password" id="forgotPasswordLink" style="font-size:12px; font-weight:normal; text-decoration:none; color:#2c5282;">Forgot Password?</a>
+            </label>
             <input type="password" class="form-control" id="loginPassword" placeholder="Enter password" required>
           </div>
           <button type="submit" class="btn btn-primary">Sign In</button>

@@ -15,7 +15,10 @@ const {
   deleteDepartment,
   getMyOpportunities,
   toggleOpportunity,
-  deleteOpportunity
+  deleteOpportunity,
+  getTeamPasswordRequests,
+  approveTeamPasswordRequest,
+  rejectTeamPasswordRequest
 } = require('../controllers/hrController');
 
 // All routes require CompanyHR role
@@ -38,5 +41,10 @@ router.delete('/opportunities/:id', deleteOpportunity);
 router.get('/departments', getDepartments);
 router.post('/departments', addDepartment);
 router.delete('/departments/:name', deleteDepartment);
+
+// Team Member Password Requests
+router.get('/password-requests', getTeamPasswordRequests);
+router.put('/password-requests/:id/approve', approveTeamPasswordRequest);
+router.put('/password-requests/:id/reject', rejectTeamPasswordRequest);
 
 module.exports = router;

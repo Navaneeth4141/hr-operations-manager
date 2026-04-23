@@ -7,6 +7,7 @@ const User = require('../models/User');
 const Notification = require('../models/Notification');
 const Email = require('../models/Email');
 const Department = require('../models/Department');
+const PasswordResetRequest = require('../models/PasswordResetRequest');
 
 /**
  * GET /api/hr/applications
@@ -310,7 +311,86 @@ async function deleteOpportunity(req, res) {
     if (!opp) return res.status(404).json({ error: 'Opportunity not found' });
     res.json({ message: 'Job posting deleted' });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to delete opportunity' });
+    console.error('[HR] Error deleting job posting:', err);
+    res.status(500).json({ error: 'Server error processing request.' });
+  }
+}
+
+/**
+ * GET /api/hr/password-requests
+ * Fetch pending password reset requests for Manager/Interviewer of this company
+ */
+async function getTeamPasswordRequests(req, res) {
+  try {
+    const requests = await PasswordResetRequest.find({ 
+      company: req.user.companyId,
+      status: 'Pending'
+    }).populate('user', 'username email role');
+
+    // Only return Manager/Interviewer requests (just in case)
+    const validRequests = requests.filter(r => r.user && ['Manager', 'Interviewer'].includes(r.user.role));
+    res.json(validRequests);
+  } catch (err) {
+    console.error('[HR] Error fetching team password requests:', err);
+    res.status(500).json({ error: 'Server error processing request.' });
+  }
+}
+
+/**
+ * PUT /api/hr/password-requests/:id/approve
+ */
+async function approveTeamPasswordRequest(req, res) {
+  try {
+    const request = await PasswordResetRequest.findOne({ 
+      _id: req.params.id, 
+      company: req.user.companyId 
+    }).populate('user');
+    
+    if (!request || request.status !== 'Pending') {
+      return res.status(404).json({ error: 'Pending request not found.' });
+    }
+
+    if (!request.user || !['Manager', 'Interviewer'].includes(request.user.role)) {
+      return res.status(400).json({ error: 'Invalid user for this request type.' });
+    }
+
+    // Update password, bypassing pre-save to avoid double hashing
+    await User.updateOne(
+      { _id: request.user._id },
+      { $set: { password: request.newPasswordHash } }
+    );
+
+    request.status = 'Approved';
+    await request.save();
+
+    res.json({ message: 'Password reset request approved.' });
+  } catch (err) {
+    console.error('[HR] Error approving team password request:', err);
+    res.status(500).json({ error: 'Server error processing request.' });
+  }
+}
+
+/**
+ * PUT /api/hr/password-requests/:id/reject
+ */
+async function rejectTeamPasswordRequest(req, res) {
+  try {
+    const request = await PasswordResetRequest.findOne({ 
+      _id: req.params.id, 
+      company: req.user.companyId 
+    });
+
+    if (!request || request.status !== 'Pending') {
+      return res.status(404).json({ error: 'Pending request not found.' });
+    }
+
+    request.status = 'Rejected';
+    await request.save();
+
+    res.json({ message: 'Password reset request rejected.' });
+  } catch (err) {
+    console.error('[HR] Error rejecting team password request:', err);
+    res.status(500).json({ error: 'Server error processing request.' });
   }
 }
 
@@ -328,5 +408,8 @@ module.exports = {
   deleteDepartment,
   getMyOpportunities,
   toggleOpportunity,
-  deleteOpportunity
+  deleteOpportunity,
+  getTeamPasswordRequests,
+  approveTeamPasswordRequest,
+  rejectTeamPasswordRequest
 };

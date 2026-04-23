@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
   loadStats();
   loadReports();
   initCompanyManagement();
+  loadPasswordRequests();
 });
 
 /**
@@ -166,6 +167,72 @@ async function loadReports(filters = {}) {
     `).join('');
   } catch (err) {
     console.error('Failed to load reports:', err);
+  }
+}
+
+/**
+ * Load Company HR Password Requests
+ */
+async function loadPasswordRequests() {
+  const tbody = document.getElementById('passwordRequestsBody');
+  if (!tbody) return;
+
+  try {
+    const res = await apiRequest('/admin/password-requests');
+    if (!res || !res.ok) throw new Error();
+    const requests = await res.json();
+
+    if (requests.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">No pending password requests.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = requests.map(req => `
+      <tr>
+        <td>${req.company ? req.company.name : 'Unknown'}</td>
+        <td>${req.user.username}</td>
+        <td>${req.user.email}</td>
+        <td>${new Date(req.createdAt).toLocaleDateString()}</td>
+        <td>
+          <button class="btn btn-sm btn-success" onclick="approvePasswordRequest('${req._id}')">Approve</button>
+          <button class="btn btn-sm btn-danger" onclick="rejectPasswordRequest('${req._id}')">Reject</button>
+        </td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-danger">Error loading requests.</td></tr>';
+  }
+}
+
+async function approvePasswordRequest(id) {
+  if (!confirm('Are you sure you want to approve this password reset?')) return;
+  try {
+    const res = await apiRequest(`/admin/password-requests/${id}/approve`, { method: 'PUT' });
+    const data = await res.json();
+    if (res.ok) {
+      showAlert(data.message, true);
+      loadPasswordRequests();
+    } else {
+      showAlert(data.error || 'Failed to approve request', false);
+    }
+  } catch (err) {
+    showAlert('Server error', false);
+  }
+}
+
+async function rejectPasswordRequest(id) {
+  if (!confirm('Are you sure you want to reject this request?')) return;
+  try {
+    const res = await apiRequest(`/admin/password-requests/${id}/reject`, { method: 'PUT' });
+    const data = await res.json();
+    if (res.ok) {
+      showAlert(data.message, true);
+      loadPasswordRequests();
+    } else {
+      showAlert(data.error || 'Failed to reject request', false);
+    }
+  } catch (err) {
+    showAlert('Server error', false);
   }
 }
 

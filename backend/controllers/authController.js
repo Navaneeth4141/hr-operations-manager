@@ -2,7 +2,10 @@
 // Handles user login and registration
 
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const User = require('../models/User');
+const Company = require('../models/Company');
+const PasswordResetRequest = require('../models/PasswordResetRequest');
 const { JWT_SECRET } = require('../middleware/auth');
 
 /**
@@ -124,4 +127,107 @@ async function getUsers(req, res) {
   }
 }
 
-module.exports = { login, register, getUsers };
+/**
+ * POST /api/auth/forgot-password/applicant
+ * Direct password reset for applicants
+ */
+async function forgotPasswordApplicant(req, res) {
+  try {
+    const { username, email, newPassword } = req.body;
+    if (!username || !email || !newPassword) {
+      return res.status(400).json({ error: 'Username, email, and new password are required.' });
+    }
+
+    const user = await User.findOne({ username, email, role: 'Applicant' });
+    if (!user) {
+      return res.status(404).json({ error: 'Applicant account not found.' });
+    }
+
+    user.password = newPassword; // Will be hashed by pre-save hook
+    await user.save();
+
+    res.json({ message: 'Password updated successfully. You can now login.' });
+  } catch (err) {
+    console.error('[Auth] Applicant forgot password error:', err);
+    res.status(500).json({ error: 'Server error processing request.' });
+  }
+}
+
+/**
+ * POST /api/auth/forgot-password/company
+ * Creates pending request for Company HR
+ */
+async function forgotPasswordCompany(req, res) {
+  try {
+    const { companyName, username, email, newPassword } = req.body;
+    if (!companyName || !username || !email || !newPassword) {
+      return res.status(400).json({ error: 'All fields are required.' });
+    }
+
+    const company = await Company.findOne({ name: companyName });
+    if (!company) {
+      return res.status(404).json({ error: 'Company not found.' });
+    }
+
+    const user = await User.findOne({ username, email, role: 'CompanyHR', companyId: company._id });
+    if (!user) {
+      return res.status(404).json({ error: 'HR account not found for this company.' });
+    }
+
+    const newPasswordHash = await bcrypt.hash(newPassword, 10);
+
+    const existingRequest = await PasswordResetRequest.findOne({ user: user._id, status: 'Pending' });
+    if (existingRequest) {
+      return res.status(400).json({ error: 'You already have a pending password reset request.' });
+    }
+
+    await new PasswordResetRequest({
+      user: user._id,
+      company: company._id,
+      newPasswordHash
+    }).save();
+
+    res.json({ message: 'Password reset request submitted. Please wait for Admin approval.' });
+  } catch (err) {
+    console.error('[Auth] Company forgot password error:', err);
+    res.status(500).json({ error: 'Server error processing request.' });
+  }
+}
+
+/**
+ * POST /api/auth/forgot-password/member
+ * Creates pending request for Team Member (Interviewer/Manager)
+ */
+async function forgotPasswordMember(req, res) {
+  try {
+    const { username, email, newPassword } = req.body;
+    if (!username || !email || !newPassword) {
+      return res.status(400).json({ error: 'All fields are required.' });
+    }
+
+    const user = await User.findOne({ username, email, role: { $in: ['Manager', 'Interviewer'] } });
+    if (!user) {
+      return res.status(404).json({ error: 'Team member account not found.' });
+    }
+
+    const newPasswordHash = await bcrypt.hash(newPassword, 10);
+
+    const existingRequest = await PasswordResetRequest.findOne({ user: user._id, status: 'Pending' });
+    if (existingRequest) {
+      return res.status(400).json({ error: 'You already have a pending password reset request.' });
+    }
+
+    await new PasswordResetRequest({
+      user: user._id,
+      company: user.companyId,
+      newPasswordHash
+    }).save();
+
+    res.json({ message: 'Password reset request submitted. Please wait for your HR to approve it.' });
+  } catch (err) {
+    console.error('[Auth] Member forgot password error:', err);
+    res.status(500).json({ error: 'Server error processing request.' });
+  }
+}
+
+module.exports = { login, register, getUsers, forgotPasswordApplicant, forgotPasswordCompany, forgotPasswordMember };

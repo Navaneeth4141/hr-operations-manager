@@ -269,4 +269,17 @@ function setupDynamicUI() {
     if (loginSubtitle) loginSubtitle.textContent = 'Sign in to track your applications';
     renderBenefits(applicantBenefits);
   }
+
+  // Set the Forgot Password link appropriately
+  const forgotLink = document.getElementById('forgotPasswordLink');
+  if (forgotLink) {
+    if (role === 'company') {
+      forgotLink.href = '/forgot-password?role=company';
+      forgotLink.style.color = '#065f46';
+    } else if (role === 'admin') {
+      forgotLink.href = '/forgot-password?role=admin';
+    } else {
+      forgotLink.href = '/forgot-password?role=applicant';
+    }
+  }
 }
