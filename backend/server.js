@@ -64,11 +64,12 @@ const cleanRoutes = {
   '/admin-dashboard':          'admin_dashboard.html',
   '/admin-password-requests':  'admin_password_requests.html',
   '/hr-dashboard':             'hr_dashboard.html',
+  '/hr-jobs':                  'hr_jobs.html',
+  '/hr-departments-team':      'hr_departments_team.html',
   '/hr-password-requests':     'hr_password_requests.html',
   '/applicant-dashboard':      'applicant_dashboard.html',
   '/applicant-profile':        'applicant_profile.html',
   '/apply':                    'apply.html',
-  '/team-management':          'team_management.html',
   '/interviewer-dashboard':    'interviewer_dashboard.html',
   '/manager-dashboard':        'manager_dashboard.html',
 };

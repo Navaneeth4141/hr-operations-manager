@@ -188,7 +188,7 @@ a:hover {
 }
 
 .hamburger-btn {
-  display: none;
+  display: block;
   background: none;
   border: none;
   font-size: 22px;
@@ -387,10 +387,6 @@ a:hover {
     transform: translateX(-100%);
   }
 
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
   .main-content {
     margin-left: 0;
   }
@@ -407,4 +403,17 @@ a:hover {
     right: 10px;
     width: 290px;
   }
+}
+
+/* Global Hamburger Toggle Classes */
+.sidebar.force-close {
+  transform: translateX(-100%) !important;
+}
+
+.main-content.force-expand {
+  margin-left: 0 !important;
+}
+
+.sidebar.force-open {
+  transform: translateX(0) !important;
 }

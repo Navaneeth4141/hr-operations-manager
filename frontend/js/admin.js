@@ -45,6 +45,7 @@ async function loadStats(companyId = '') {
       renderBarChart('deptChart', 'Department-wise Hiring', stats.departmentStats || {});
     }
     renderStatusChart(stats);
+    updateDepartmentFilter(stats.departmentStats || {});
   } catch (err) {
     console.error('Failed to load stats:', err);
   }
@@ -179,6 +180,26 @@ async function loadReports(filters = {}) {
 /**
  * Load Company HR Password Requests
  */
+function updateDepartmentFilter(deptStats) {
+  const select = document.getElementById('filterDept');
+  if (!select) return;
+
+  const currentVal = select.value;
+  select.innerHTML = '<option value="">All Departments</option>';
+  
+  Object.keys(deptStats).sort().forEach(dept => {
+    const option = document.createElement('option');
+    option.value = dept;
+    option.textContent = dept;
+    select.appendChild(option);
+  });
+
+  // Try to restore previous selection
+  if (currentVal && Array.from(select.options).some(o => o.value === currentVal)) {
+    select.value = currentVal;
+  }
+}
+
 async function loadPasswordRequests() {
   const tbody = document.getElementById('passwordRequestsBody');
   if (!tbody) return;

@@ -7,11 +7,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
   setupNavbar();
 
-  if (document.getElementById('applicationsBody')) {
-    loadHRApplications();
-    loadManagers();
+  if (document.getElementById('applicationsBody') || document.getElementById('myPostingsBody') || document.getElementById('deptList')) {
+    if (document.getElementById('applicationsBody')) {
+      loadHRApplications();
+      loadManagers();
+    }
+    if (document.getElementById('myPostingsBody')) {
+      loadMyPostings();
+    }
     loadDepts();
-    loadMyPostings();
     initHRManagement();
   }
 
@@ -295,32 +299,56 @@ function closeModal(modalId) {
  * Load departments and populate dropdown + list
  */
 async function loadDepts() {
-  const res = await apiRequest('/hr/departments');
-  if (!res || !res.ok) return;
-  const depts = await res.json();
-
-  // Populate dropdown in job form
-  const select = document.getElementById('oppDept');
-  if (select) {
-    select.innerHTML = '<option value="">-- Select Department --</option>';
-    depts.forEach(d => {
-      select.innerHTML += `<option value="${d.name}">${d.name}</option>`;
-    });
-  }
-
-  // Populate dept management list
-  const list = document.getElementById('deptList');
-  if (list) {
-    if (depts.length === 0) {
-      list.innerHTML = '<small class="text-muted">No departments yet.</small>';
-    } else {
-      list.innerHTML = depts.map(d => `
-        <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
-          <span style="font-size:13px;">&#127970; ${d.name}</span>
-          <button class="btn btn-sm btn-outline-danger py-0" onclick="removeDept('${encodeURIComponent(d.name)}')">&#10005;</button>
-        </div>
-      `).join('');
+  console.log('[HR] Loading departments...');
+  try {
+    const res = await apiRequest('/hr/departments');
+    if (!res || !res.ok) {
+      console.error('[HR] Failed to fetch departments:', res ? res.status : 'No response');
+      return;
     }
+    const depts = await res.json();
+    console.log('[HR] Departments found:', depts.length);
+
+    // Populate dropdown in job form or team form
+    const oppSelect = document.getElementById('oppDept');
+    const subSelect = document.getElementById('subDept');
+
+    if (oppSelect) {
+      oppSelect.innerHTML = '<option value="">-- Select Department --</option>';
+      depts.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d.name;
+        opt.textContent = d.name;
+        oppSelect.appendChild(opt);
+      });
+    }
+
+    if (subSelect) {
+      subSelect.innerHTML = '<option value="">-- Department --</option>';
+      depts.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d.name;
+        opt.textContent = d.name;
+        subSelect.appendChild(opt);
+      });
+    }
+
+    // Populate dept management list
+    const list = document.getElementById('deptList');
+    if (list) {
+      if (depts.length === 0) {
+        list.innerHTML = '<small class="text-muted">No departments yet.</small>';
+      } else {
+        list.innerHTML = depts.map(d => `
+          <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
+            <span style="font-size:13px;">&#127970; ${d.name}</span>
+            <button class="btn btn-sm btn-outline-danger py-0" onclick="removeDept('${encodeURIComponent(d.name)}')">&#10005;</button>
+          </div>
+        `).join('');
+      }
+    }
+  } catch (err) {
+    console.error('[HR] Error in loadDepts:', err);
   }
 }
 

@@ -6,12 +6,34 @@ const API_BASE = '/api';
 /**
  * Toggle sidebar visibility on mobile
  */
-function toggleSidebar() {
+function toggleSidebar(e) {
+  if (e) e.stopPropagation();
   const sidebar = document.querySelector('.sidebar');
-  if (sidebar) {
-    sidebar.classList.toggle('open');
+  const mainContent = document.querySelector('.main-content');
+  if (!sidebar) return;
+
+  const isMobile = window.innerWidth <= 768;
+  if (isMobile) {
+    sidebar.classList.toggle('force-open');
+  } else {
+    sidebar.classList.toggle('force-close');
+    if (mainContent) mainContent.classList.toggle('force-expand');
   }
 }
+
+// Close sidebar when clicking outside (on mobile)
+document.addEventListener('click', (e) => {
+  const sidebar = document.querySelector('.sidebar');
+  const hamburger = document.getElementById('hamburgerBtn');
+  if (sidebar && hamburger) {
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile && sidebar.classList.contains('force-open')) {
+      if (!sidebar.contains(e.target) && !hamburger.contains(e.target)) {
+        sidebar.classList.remove('force-open');
+      }
+    }
+  }
+});
 
 /**
  * Helper to determine which portal the user is currently in based on URL

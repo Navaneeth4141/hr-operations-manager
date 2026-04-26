@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Team Management - HR Operations</title>
+  <title>Departments & Team - HR Operations</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/frontend/css/global.css">
   <link rel="stylesheet" href="/frontend/css/dashboard.css">
@@ -22,8 +22,13 @@
           </a>
         </li>
         <li>
-          <a href="/team-management" class="active">
-            <span class="nav-icon">&#128101;</span> Team Management
+          <a href="/hr-jobs">
+            <span class="nav-icon">&#128188;</span> Jobs
+          </a>
+        </li>
+        <li>
+          <a href="/hr-departments-team" class="active">
+            <span class="nav-icon">&#128101;</span> Departments & Team
           </a>
         </li>
         <li>
@@ -44,7 +49,7 @@
       <div class="top-navbar">
         <div class="navbar-left">
           <button class="hamburger-btn" id="hamburgerBtn">&#9776;</button>
-          <h1 class="page-title">Team Management</h1>
+          <h1 class="page-title">Departments & Team</h1>
         </div>
         <div class="navbar-right">
           <button class="notification-bell" id="notifBell">
@@ -64,41 +69,57 @@
       <div class="page-content">
         <div id="alertMsg" class="alert-msg"></div>
 
-        <!-- Add New Member -->
-        <div class="card p-4 mb-4">
-          <h5 class="mb-3">&#10133; Add New Team Member</h5>
-          <form id="createSubAccountForm">
-            <div class="row g-3">
-              <div class="col-md-3">
-                <select id="subDept" class="form-control" required>
-                  <option value="">-- Department --</option>
-                </select>
+        <div class="row">
+          <!-- Manage Departments -->
+          <div class="col-md-5 mb-4">
+            <div class="card p-4 h-100">
+              <h5 class="mb-3">&#127970; Manage Departments</h5>
+              <div class="input-group mb-3">
+                <input type="text" class="form-control" id="newDeptName" placeholder="New department name">
+                <button class="btn btn-outline-primary" type="button" onclick="addDept()">+ Add</button>
               </div>
-              <div class="col-md-3">
-                <select id="subRole" class="form-control" required>
-                  <option value="">-- Role --</option>
-                  <option value="Manager">Manager</option>
-                  <option value="Interviewer">Interviewer</option>
-                </select>
-              </div>
-              <div class="col-md-3">
-                <input type="text" class="form-control" id="subUsername" placeholder="Username" required>
-              </div>
-              <div class="col-md-3">
-                <input type="email" class="form-control" id="subEmail" placeholder="Email" required>
-              </div>
-              <div class="col-md-3">
-                <input type="password" class="form-control" id="subPassword" placeholder="Password" required>
-              </div>
-              <div class="col-md-3">
-                <button type="submit" class="btn btn-primary">Add Member</button>
-              </div>
+              <div id="deptList" style="max-height:200px; overflow-y:auto; border:1px solid #e5e7eb; border-radius:6px; padding:10px;"></div>
             </div>
-          </form>
+          </div>
+
+          <!-- Add New Member -->
+          <div class="col-md-7 mb-4">
+            <div class="card p-4 h-100">
+              <h5 class="mb-3">&#10133; Add New Team Member</h5>
+              <form id="createSubAccountForm">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <select id="subDept" class="form-control" required>
+                      <option value="">-- Department --</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <select id="subRole" class="form-control" required>
+                      <option value="">-- Role --</option>
+                      <option value="Manager">Manager</option>
+                      <option value="Interviewer">Interviewer</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <input type="text" class="form-control" id="subUsername" placeholder="Username" required>
+                  </div>
+                  <div class="col-md-6">
+                    <input type="email" class="form-control" id="subEmail" placeholder="Email" required>
+                  </div>
+                  <div class="col-md-8">
+                    <input type="password" class="form-control" id="subPassword" placeholder="Password" required>
+                  </div>
+                  <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">Add Member</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
 
         <!-- Team Members Table -->
-        <div class="section-header">
+        <div class="section-header mt-2">
           <h2>&#128101; Current Team Members</h2>
         </div>
         <div class="table-container">
@@ -123,54 +144,43 @@
   </div>
 
   <script src="/frontend/js/sidebar.js"></script>
+  <script src="/frontend/js/hr.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const user = checkAuth('CompanyHR');
-      if (!user) return;
-      setupNavbar();
+      // hr.js already calls initHRManagement which handles loadDepts (populating subDept)
       loadTeam();
-      loadDepartments();
 
-      document.getElementById('createSubAccountForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const role = document.getElementById('subRole').value;
-        const username = document.getElementById('subUsername').value;
-        const email = document.getElementById('subEmail').value;
-        const department = document.getElementById('subDept').value;
-        const password = document.getElementById('subPassword').value;
-        const res = await apiRequest('/hr/subaccounts', {
-          method: 'POST',
-          body: JSON.stringify({ role, username, email, department, password })
+      const createSubAccountForm = document.getElementById('createSubAccountForm');
+      if (createSubAccountForm) {
+        createSubAccountForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const role = document.getElementById('subRole').value;
+          const username = document.getElementById('subUsername').value;
+          const email = document.getElementById('subEmail').value;
+          const department = document.getElementById('subDept').value;
+          const password = document.getElementById('subPassword').value;
+          const res = await apiRequest('/hr/subaccounts', {
+            method: 'POST',
+            body: JSON.stringify({ role, username, email, department, password })
+          });
+          if (res && res.ok) {
+            showAlert('Team member added!', 'success');
+            e.target.reset();
+            loadTeam();
+          } else {
+            const d = await res.json();
+            showAlert(d.error || 'Failed to add member', 'error');
+          }
         });
-        if (res && res.ok) {
-          showAlert('Team member added!', 'success');
-          e.target.reset();
-          loadTeam();
-          loadDepartments(); // re-select first option
-        } else {
-          const d = await res.json();
-          showAlert(d.error || 'Failed to add member', 'error');
-        }
-      });
+      }
     });
-
-    async function loadDepartments() {
-      const res = await apiRequest('/hr/departments');
-      if (!res || !res.ok) return;
-      const depts = await res.json();
-      const select = document.getElementById('subDept');
-      if (!select) return;
-      select.innerHTML = '<option value="">-- Department --</option>';
-      depts.forEach(d => {
-        select.innerHTML += `<option value="${d.name}">${d.name}</option>`;
-      });
-    }
 
     async function loadTeam() {
       const res = await apiRequest('/hr/subaccounts');
       if (!res || !res.ok) return;
       const members = await res.json();
       const tbody = document.getElementById('teamBody');
+      if (!tbody) return;
       if (members.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">No team members yet.</td></tr>';
         return;
